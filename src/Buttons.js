@@ -48,7 +48,7 @@ export default class Buttons extends React.Component {
                 className="opperation"
                 id="multiply"
                 onClick={this.props.operation}
-                value="x"
+                value="*"
                 >
                 x
             </button>

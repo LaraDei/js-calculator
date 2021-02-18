@@ -14,7 +14,7 @@ export default class App extends React.Component {
       currentSign: 'pos',
       lastClicked: '',
       evaluated: false,
-      endsWithOperator: /[x+-/]$/g,
+      endsWithOperator: /[*+-/]$/g,
       endsWithNegativeSign: /‑$/
     }
   }
@@ -64,7 +64,6 @@ export default class App extends React.Component {
       if (evaluated) {
         this.setState({ input: prevVal + opp });
       }  else if (!this.state.endsWithOperator.test(input)) {
-        console.log('hello')
         this.setState(prevState=>({
           prevVal: prevState.input,
           input: input + opp
@@ -79,6 +78,7 @@ export default class App extends React.Component {
         });
       }
     }
+    console.log(this.state.input)
   }
 
   handledec(){
@@ -113,32 +113,28 @@ export default class App extends React.Component {
   }
 
   handleEquals(){
-    if (!this.state.currentVal.includes('Limit')) {
+    if (!this.state.input) {
+      return
+    }
       let expression = this.state.input;
       console.log(expression)
       while (this.state.endsWithOperator.test(expression)) {
         expression = expression.slice(0, -1);
       }
       expression = expression
-        .replace(/x/g, '*')
-        .replace(/‑/g, '-')
-        .replace('--', '+0+0+0+0+0+0+');
-      let answer = Math.round(1000000000000 * eval(expression)) / 1000000000000;
+        .replace('--', '+0+');
+      let sanitizedExpression = expression.replace(/[^-()\d/*+.]/g, '')
+      // eslint-disable-next-line no-eval
+      let answer = Math.round(1000000000000 * eval(sanitizedExpression)) / 1000000000000;
       this.setState({
         currentVal: answer.toString(),
         input:
           expression
-            .replace(/\*/g, '⋅')
-            .replace(/-/g, '‑')
-            .replace('+0+0+0+0+0+0+', '‑-')
-            .replace(/(x|\/|\+)‑/, '$1-')
-            .replace(/^‑/, '-') +
-          '=' +
+            .replace('+0+', '‑-') + '=' +
           answer,
         prevVal: answer,
         evaluated: true
       });
-    }
   }
 
   handleClear(){
@@ -146,6 +142,7 @@ export default class App extends React.Component {
       currentVal: '0',
       prevVal: '0',
       input: '',
+
       currentSign: 'pos',
       lastClicked: '',
       evaluated: false
